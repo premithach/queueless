@@ -105,6 +105,8 @@ Examples:
 - Person visiting a bank.
 - Customer visiting a service center.
 
+
+
 ### 5.2 Business / Staff
 
 A business or staff member who manages customers and queues.
@@ -116,6 +118,8 @@ Examples:
 - Restaurant staff.
 - Bank employee.
 - Service center employee.
+
+
 
 ## 6. Customer Features
 
@@ -136,6 +140,8 @@ Customers can:
 - Leave a queue.
 - View previous queue visits.
 
+
+
 ## 7. Business Features
 
 Businesses can:
@@ -154,6 +160,8 @@ Businesses can:
 - View queue history.
 - View basic queue statistics.
 
+
+
 ## 8. Business Types
 
 QueueLess is designed as a generic queue management platform.
@@ -168,6 +176,8 @@ Initial business categories:
 - Restaurants
 - Banks
 - Service Centers
+
+
 
 ### Example
 
@@ -248,6 +258,8 @@ Complete / Skip Customer
 Continue Queue
 
 ## 11. Customer Journey Example
+
+
 
 ### Without QueueLess
 
@@ -531,6 +543,8 @@ Supported token states:
 - SKIPPED
 - CANCELLED
 
+
+
 ## 22. Business Queue Management
 
 Businesses can manage their active queues.
@@ -641,6 +655,8 @@ The first version of QueueLess will focus on the core queue-management problem.
 - Leaving a queue.
 - Queue history.
 
+
+
 ### Business MVP
 
 - Authentication.
@@ -654,6 +670,8 @@ The first version of QueueLess will focus on the core queue-management problem.
 - Pause/resume queue.
 - Queue history.
 - Basic statistics.
+
+
 
 ## 27. Technology Stack
 
@@ -681,6 +699,8 @@ MySQL
 Detailed frontend, backend, and database architecture will be documented separately.
 
 ## 29. MVP Success Criteria
+
+
 
 ### Customer
 
@@ -722,6 +742,8 @@ Both flows must work using real data stored in MySQL.
 
 ## 30. Product Goal
 
+
+
 ### Primary Goal
 
 Reduce unnecessary physical waiting for customers while giving businesses a simple way to manage their queues.
@@ -742,6 +764,8 @@ Serve
 
 ## 31. Product Principles
 
+
+
 ### 1. Solve a real problem
 
 Every feature should have a clear purpose related to reducing waiting or improving queue management.
@@ -754,6 +778,8 @@ Customers should immediately understand:
 - How many people are ahead.
 - How long they may wait.
 - When they should arrive.
+
+
 
 ### 3. Build for different businesses
 
