@@ -1,35 +1,13 @@
-const http = require("http");
+const http = require('http');
+
+require('./db/connection');
+
+const { handleRequest } = require('./routes');
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  const { method, url } = req;
-
-  // GET /businesses
-  if (method === "GET" && url === "/businesses") {
-    res.writeHead(200, {
-      "Content-Type": "application/json",
-    });
-
-    res.end(
-      JSON.stringify({
-        message: "Businesses endpoint",
-      })
-    );
-
-    return;
-  }
-
-  // Route not found
-  res.writeHead(404, {
-    "Content-Type": "application/json",
-  });
-
-  res.end(
-    JSON.stringify({
-      message: "Route not found",
-    })
-  );
+  handleRequest(req, res);
 });
 
 server.listen(PORT, () => {
