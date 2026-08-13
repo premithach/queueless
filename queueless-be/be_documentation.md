@@ -546,3 +546,60 @@ Return token
 React
 ```
 
+# QueueLess API Documentation
+
+## API Endpoints
+
+| # | Method | Endpoint | Access | Purpose |
+|---|---|---|---|---|
+| 1 | `POST` | `/auth/register` | Public | Register a new customer |
+| 2 | `POST` | `/auth/register-business` | Public | Register a business and business user |
+| 3 | `POST` | `/auth/login` | Public | Login for customers and businesses and receive an authentication token |
+| 4 | `GET` | `/businesses` | Public | Get all businesses |
+| 5 | `GET` | `/businesses/search?search_term={term}` | Public | Search businesses by search term |
+| 6 | `GET` | `/businesses?category={category}` | Public | Filter businesses by category |
+| 7 | `GET` | `/businesses/nearby?latitude={lat}&longitude={lng}&radius={km}` | Public | Find businesses within a specified radius |
+| 8 | `GET` | `/businesses/:id` | Public | Get details of a specific business |
+| 9 | `GET` | `/businesses/:id/services` | Public | Get all services offered by a business |
+| 10 | `POST` | `/businesses/:id/services` | Business | Create a new service |
+| 11 | `PATCH` | `/services/:id` | Business | Update an existing service |
+| 12 | `DELETE` | `/services/:id` | Business | Delete a service |
+| 13 | `POST` | `/services/:id/queue` | Business | Create a queue for a service |
+| 14 | `PATCH` | `/queues/:id` | Business | Open, pause, resume, or close a queue |
+| 15 | `POST` | `/queues/:id/join` | Customer | Join an open queue and receive a token number |
+| 16 | `GET` | `/users/me/queue-history` | Customer | View the customer's previous queue visits |
+| 17 | `POST` | `/tokens/:id/cancel` | Customer | Leave or cancel the customer's own queue token |
+| 18 | `GET` | `/queues/:queueId/tokens/:tokenId/status` | Public | Get token status, people ahead, and estimated waiting time |
+| 19 | `GET` | `/queues/:id/tokens` | Business | View customers and tokens in a queue |
+| 20 | `POST` | `/queues/:id/next` | Business | Call the next waiting customer |
+| 21 | `POST` | `/queues/:id/complete` | Business | Mark the currently served customer as completed |
+| 22 | `POST` | `/queues/:id/skip` | Business | Skip the currently served customer |
+| 23 | `POST` | `/queues/:id/cancel` | Business | Cancel the currently served customer |
+| 24 | `GET` | `/queues/:id/history` | Business | View historical customers and queue activity |
+| 25 | `GET` | `/queues/:id/statistics` | Business | Get queue statistics including total, completed, skipped, cancelled, average wait time, and average service time |
+
+## Authentication
+
+| Access | Authorization |
+|---|---|
+| Public | No authentication required |
+| Customer | `Authorization: Bearer <customer_token>` |
+| Business | `Authorization: Bearer <business_token>` |
+
+## Queue Statuses
+
+| Status | Meaning |
+|---|---|
+| `OPEN` | Customers can join the queue |
+| `PAUSED` | Queue is temporarily paused |
+| `CLOSED` | Queue is closed |
+
+## Token Statuses
+
+| Status | Meaning |
+|---|---|
+| `WAITING` | Customer is waiting in the queue |
+| `SERVING` | Customer is currently being served |
+| `COMPLETED` | Service has been completed |
+| `SKIPPED` | Customer was skipped |
+| `CANCELLED` | Token was cancelled by the customer or business |
