@@ -1,9 +1,14 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import CustomerLayout from '../components/customer/CustomerLayout';
+
 import Login from '../pages/auth/Login';
-import BusinessList from '../pages/customer/BusinessList';
-import ProtectedRoute from './ProtectedRoute';
 import BusinessDetails from '../pages/customer/BusinessDetails';
+import BusinessList from '../pages/customer/BusinessList';
+import QueueHistory from '../pages/customer/QueueHistory';
+import TokenStatus from '../pages/customer/TokenStatus';
+
+import ProtectedRoute from './ProtectedRoute';
 
 const BusinessDashboard = () => {
   return <h1>Business Dashboard</h1>;
@@ -16,28 +21,29 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
 
         <Route
-          path="/businesses"
           element={
             <ProtectedRoute allowedRole="CUSTOMER">
-              <BusinessList />
+              <CustomerLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="/businesses" element={<BusinessList />} />
+
+          <Route path="/businesses/:id" element={<BusinessDetails />} />
+
+          <Route
+            path="/queues/:queueId/token/:tokenId"
+            element={<TokenStatus />}
+          />
+
+          <Route path="/queue-history" element={<QueueHistory />} />
+        </Route>
 
         <Route
           path="/business/dashboard"
           element={
             <ProtectedRoute allowedRole="BUSINESS">
               <BusinessDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/businesses/:id"
-          element={
-            <ProtectedRoute allowedRole="CUSTOMER">
-              <BusinessDetails />
             </ProtectedRoute>
           }
         />
