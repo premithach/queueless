@@ -1,6 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import BusinessLayout from '../components/business/BusinessLayout';
 import CustomerLayout from '../components/customer/CustomerLayout';
+
+import BusinessDashboard from '../pages/business/BusinessDashboard';
+import BusinessQueue from '../pages/business/BusinessQueue';
+import BusinessQueueHistory from '../pages/business/BusinessQueueHistory';
+import BusinessStatistics from '../pages/business/BusinessStatistics';
 
 import Login from '../pages/auth/Login';
 import BusinessDetails from '../pages/customer/BusinessDetails';
@@ -10,16 +16,13 @@ import TokenStatus from '../pages/customer/TokenStatus';
 
 import ProtectedRoute from './ProtectedRoute';
 
-const BusinessDashboard = () => {
-  return <h1>Business Dashboard</h1>;
-};
-
 const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
 
+        {/* Customer Routes */}
         <Route
           element={
             <ProtectedRoute allowedRole="CUSTOMER">
@@ -39,15 +42,27 @@ const AppRoutes = () => {
           <Route path="/queue-history" element={<QueueHistory />} />
         </Route>
 
+        {/* Business Routes */}
         <Route
-          path="/business/dashboard"
           element={
             <ProtectedRoute allowedRole="BUSINESS">
-              <BusinessDashboard />
+              <BusinessLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="/business/dashboard" element={<BusinessDashboard />} />
 
+          <Route path="/business/queue" element={<BusinessQueue />} />
+
+          <Route
+            path="/business/queue-history"
+            element={<BusinessQueueHistory />}
+          />
+
+          <Route path="/business/statistics" element={<BusinessStatistics />} />
+        </Route>
+
+        {/* Unknown Routes */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
