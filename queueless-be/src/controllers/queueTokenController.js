@@ -32,6 +32,8 @@ function getStatus(req, res, queueId, tokenId) {
         sendJson(res, 200, {
           token_number: token.token_number,
           status: token.status,
+          business_name: token.business_name,
+          service_name: token.service_name,
           people_ahead: waitData.peopleAhead,
           average_service_time: waitData.averageServiceTime,
           estimated_wait_minutes: waitData.estimatedWaitMinutes,
@@ -47,38 +49,46 @@ function join(req, res, queueId) {
       return;
     }
 
-    queueTokenService.joinQueue(queueId, user.id, (error, queueToken) => {
-      if (error) {
-        sendJson(res, 500, {
-          message: 'Failed to join queue',
-        });
-        return;
-      }
+    queueTokenService.joinQueue(
+      queueId,
+      user.id,
+      (error, queueToken) => {
+        if (error) {
+          sendJson(res, 500, {
+            message: 'Failed to join queue',
+          });
+          return;
+        }
 
-      if (queueToken.error === 'QUEUE_NOT_FOUND') {
-        sendJson(res, 404, {
-          message: 'Queue not found',
-        });
-        return;
-      }
+        if (queueToken.error === 'QUEUE_NOT_FOUND') {
+          sendJson(res, 404, {
+            message: 'Queue not found',
+          });
+          return;
+        }
 
-      if (queueToken.error === 'QUEUE_NOT_OPEN') {
-        sendJson(res, 400, {
-          message: 'Queue is not open',
-        });
-        return;
-      }
+        if (queueToken.error === 'QUEUE_NOT_OPEN') {
+          sendJson(res, 400, {
+            message: 'Queue is not open',
+          });
+          return;
+        }
 
-      if (queueToken.error === 'ALREADY_JOINED') {
-        sendJson(res, 409, {
-          message: 'Customer has already joined this queue',
-          token: queueToken.token,
-        });
-        return;
-      }
+        if (queueToken.error === 'ALREADY_JOINED') {
+          sendJson(res, 200, {
+            status: 'ALREADY_JOINED',
+            message: 'Customer has already joined this service',
+            token: queueToken.token,
+          });
+          return;
+        }
 
-      sendJson(res, 201, queueToken);
-    });
+        sendJson(res, 200, {
+          status: 'JOINED',
+          token: queueToken,
+        });
+      }
+    );
   });
 }
 
@@ -211,6 +221,28 @@ function getUserQueueHistory(req, res) {
   });
 }
 
+function getActiveQueueTokens(req, res) {
+  authenticate(req, res, (user) => {
+    if (!requireRole(user, 'CUSTOMER', res)) {
+      return;
+    }
+
+    queueTokenService.getActiveQueueTokens(
+      user.id,
+      (error, tokens) => {
+        if (error) {
+          sendJson(res, 500, {
+            message: 'Failed to fetch active queues',
+          });
+          return;
+        }
+
+        sendJson(res, 200, tokens);
+      }
+    );
+  });
+}
+
 module.exports = {
   getStatus,
   join,
@@ -219,4 +251,5 @@ module.exports = {
   getBusinessQueueHistory,
   getQueueStatistics,
   getUserQueueHistory,
+  getActiveQueueTokens,
 };

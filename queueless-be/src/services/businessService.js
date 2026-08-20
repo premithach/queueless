@@ -150,10 +150,30 @@ function getNearbyBusinesses(latitude, longitude, radius, callback) {
   });
 }
 
+function getBusinessCategories(callback) {
+  const query = `
+    SELECT
+      id,
+      name
+    FROM business_categories
+    ORDER BY name ASC
+  `;
+
+  db.query(query, (error, results) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+
+    callback(null, results);
+  });
+}
+
 module.exports = {
   getBusinesses,
   getBusinessById,
   searchBusinesses,
   calculateDistance,
   getNearbyBusinesses,
+  getBusinessCategories,
 };

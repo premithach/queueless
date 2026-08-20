@@ -29,68 +29,100 @@ function joinQueue(queueId, userId, callback) {
       return;
     }
 
-    // Check if customer already has an active token
+    /*
+     * Check if the customer already has an active
+     * token for this SERVICE.
+     *
+     * We use service_id instead of queue_id because
+     * the same service could have multiple queues.
+     */
     const existingTokenQuery = `
-      SELECT *
+      SELECT
+        queue_tokens.*
       FROM queue_tokens
-      WHERE queue_id = ?
-      AND user_id = ?
-      AND status IN ('WAITING', 'SERVING')
+      JOIN queues
+        ON queue_tokens.queue_id = queues.id
+      WHERE queue_tokens.user_id = ?
+        AND queues.service_id = ?
+        AND queue_tokens.status IN ('WAITING', 'SERVING')
+      ORDER BY queue_tokens.created_at DESC
       LIMIT 1
     `;
 
-    db.query(existingTokenQuery, [queueId, userId], (error, tokens) => {
-      if (error) {
-        callback(error, null);
-        return;
-      }
-
-      if (tokens.length > 0) {
-        callback(null, {
-          error: 'ALREADY_JOINED',
-          token: tokens[0],
-        });
-        return;
-      }
-
-      // Find the latest token number
-      const tokenQuery = `
-          SELECT MAX(token_number) AS last_token
-          FROM queue_tokens
-          WHERE queue_id = ?
-        `;
-
-      db.query(tokenQuery, [queueId], (error, results) => {
+    db.query(
+      existingTokenQuery,
+      [userId, queue.service_id],
+      (error, tokens) => {
         if (error) {
           callback(error, null);
           return;
         }
 
-        const lastToken = results[0].last_token || 0;
-        const nextToken = lastToken + 1;
-
-        const insertQuery = `
-            INSERT INTO queue_tokens
-            (queue_id, user_id, token_number, status)
-            VALUES (?, ?, ?, 'WAITING')
-          `;
-
-        db.query(insertQuery, [queueId, userId, nextToken], (error, result) => {
-          if (error) {
-            callback(error, null);
-            return;
-          }
-
+        if (tokens.length > 0) {
           callback(null, {
-            id: result.insertId,
-            queue_id: queueId,
-            user_id: userId,
-            token_number: nextToken,
-            status: 'WAITING',
+            error: 'ALREADY_JOINED',
+            token: tokens[0],
           });
-        });
-      });
-    });
+          return;
+        }
+
+        /*
+         * Customer has no active token for this service.
+         * Create a new token for this queue.
+         */
+
+        const tokenQuery = `
+          SELECT MAX(token_number) AS last_token
+          FROM queue_tokens
+          WHERE queue_id = ?
+        `;
+
+        db.query(
+          tokenQuery,
+          [queueId],
+          (error, results) => {
+            if (error) {
+              callback(error, null);
+              return;
+            }
+
+            const lastToken =
+              results[0].last_token || 0;
+
+            const nextToken = lastToken + 1;
+
+            const insertQuery = `
+              INSERT INTO queue_tokens
+              (queue_id, user_id, token_number, status)
+              VALUES (?, ?, ?, 'WAITING')
+            `;
+
+            db.query(
+              insertQuery,
+              [
+                queueId,
+                userId,
+                nextToken,
+              ],
+              (error, result) => {
+                if (error) {
+                  callback(error, null);
+                  return;
+                }
+
+                callback(null, {
+                  id: result.insertId,
+                  queue_id: queueId,
+                  user_id: userId,
+                  token_number: nextToken,
+                  status: 'WAITING',
+                });
+              }
+            );
+          }
+        );
+      }
+    );
   });
 }
 
@@ -115,10 +147,22 @@ function getPeopleAhead(queueId, tokenNumber, callback) {
 
 function getTokenById(tokenId, callback) {
   const query = `
-      SELECT *
-      FROM queue_tokens
-      WHERE id = ?
-    `;
+    SELECT
+      queue_tokens.*,
+      queues.business_id,
+      queues.service_id,
+      businesses.name AS business_name,
+      services.name AS service_name
+    FROM queue_tokens
+    JOIN queues
+      ON queue_tokens.queue_id = queues.id
+    JOIN businesses
+      ON queues.business_id = businesses.id
+    JOIN services
+      ON queues.service_id = services.id
+    WHERE queue_tokens.id = ?
+    LIMIT 1
+  `;
 
   db.query(query, [tokenId], (error, results) => {
     if (error) {
@@ -132,47 +176,62 @@ function getTokenById(tokenId, callback) {
 
 function getEstimatedWait(queueId, tokenNumber, callback) {
   const query = `
-      SELECT
-        COUNT(*) AS people_ahead,
-        services.average_service_time
-      FROM queue_tokens
-      JOIN queues
-        ON queue_tokens.queue_id = queues.id
-      JOIN services
-        ON queues.service_id = services.id
-      WHERE queue_tokens.queue_id = ?
-        AND queue_tokens.token_number < ?
-        AND queue_tokens.status IN ('WAITING', 'SERVING')
-      GROUP BY services.average_service_time
-    `;
+    SELECT
+      (
+        SELECT COUNT(*)
+        FROM queue_tokens
+        WHERE queue_id = ?
+          AND token_number < ?
+          AND status IN ('WAITING', 'SERVING')
+      ) AS people_ahead,
 
-  db.query(query, [queueId, tokenNumber], (error, results) => {
-    if (error) {
-      callback(error, null);
-      return;
-    }
+      services.average_service_time
 
-    if (results.length === 0) {
+    FROM queues
+    JOIN services
+      ON queues.service_id = services.id
+
+    WHERE queues.id = ?
+    LIMIT 1
+  `;
+
+  db.query(
+    query,
+    [queueId, tokenNumber, queueId],
+    (error, results) => {
+      if (error) {
+        callback(error, null);
+        return;
+      }
+
+      if (results.length === 0) {
+        callback(null, {
+          peopleAhead: 0,
+          averageServiceTime: 0,
+          estimatedWaitMinutes: 0,
+        });
+
+        return;
+      }
+
+      const peopleAhead = Number(
+        results[0].people_ahead || 0
+      );
+
+      const averageServiceTime = Number(
+        results[0].average_service_time || 0
+      );
+
+      const estimatedWaitMinutes =
+        peopleAhead * averageServiceTime;
+
       callback(null, {
-        peopleAhead: 0,
-        averageServiceTime: 0,
-        estimatedWaitMinutes: 0,
+        peopleAhead,
+        averageServiceTime,
+        estimatedWaitMinutes,
       });
-
-      return;
     }
-
-    const peopleAhead = results[0].people_ahead;
-    const averageServiceTime = results[0].average_service_time;
-
-    const estimatedWaitMinutes = peopleAhead * averageServiceTime;
-
-    callback(null, {
-      peopleAhead,
-      averageServiceTime,
-      estimatedWaitMinutes,
-    });
-  });
+  );
 }
 
 function cancelToken(tokenId, userId, callback) {
@@ -266,6 +325,42 @@ function getQueueHistory(userId, callback) {
     }
 
     callback(null, history);
+  });
+}
+
+function getActiveQueueTokens(userId, callback) {
+  const query = `
+    SELECT
+      queue_tokens.id,
+      queue_tokens.queue_id,
+      queue_tokens.token_number,
+      queue_tokens.status,
+      queue_tokens.joined_at,
+      queue_tokens.called_at,
+      businesses.id AS business_id,
+      businesses.name AS business_name,
+      services.id AS service_id,
+      services.name AS service_name,
+      queues.status AS queue_status
+    FROM queue_tokens
+    JOIN queues
+      ON queue_tokens.queue_id = queues.id
+    JOIN businesses
+      ON queues.business_id = businesses.id
+    JOIN services
+      ON queues.service_id = services.id
+    WHERE queue_tokens.user_id = ?
+      AND queue_tokens.status IN ('WAITING', 'SERVING')
+    ORDER BY queue_tokens.created_at DESC
+  `;
+
+  db.query(query, [userId], (error, tokens) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+
+    callback(null, tokens);
   });
 }
 
@@ -419,6 +514,7 @@ module.exports = {
   getEstimatedWait,
   cancelToken,
   getQueueHistory,
+  getActiveQueueTokens,
   getQueueTokens,
   getBusinessQueueHistory,
   getQueueStatistics,

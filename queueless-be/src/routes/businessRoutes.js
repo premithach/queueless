@@ -4,6 +4,15 @@ const serviceController = require('../controllers/serviceController');
 function handle(req, res) {
   const { method, url } = req;
 
+    // GET /businesses/categories
+    if (
+      method === 'GET' &&
+      url === '/businesses/categories'
+    ) {
+      businessController.getCategories(req, res);
+      return true;
+    }
+
   // GET /businesses/nearby
   if (method === 'GET' && url.startsWith('/businesses/nearby')) {
     businessController.getNearby(req, res);

@@ -1,0 +1,279 @@
+.business-list {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+
+  &__header {
+    margin-bottom: 28px;
+  }
+
+  &__eyebrow {
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 32px;
+  }
+
+  &__description {
+    margin: 8px 0 0;
+    color: #666;
+  }
+
+  &__search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    input {
+      flex: 1;
+      padding: 12px 14px;
+      border: 1px solid #d5d5d5;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+
+      &:focus {
+        border-color: #2563eb;
+      }
+    }
+
+    button {
+      padding: 12px 20px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+  }
+
+  &__categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .category-button {
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &--active {
+      border-color: #2563eb;
+      background: #2563eb;
+      color: #fff;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .business-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 220px;
+    padding: 22px;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    background: #fff;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
+    }
+
+    &__content {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    &__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: #eef2ff;
+      color: #2563eb;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    &__info {
+      min-width: 0;
+
+      h2 {
+        margin: 0 0 6px;
+        font-size: 18px;
+      }
+    }
+
+    &__category {
+      color: #666;
+      font-size: 13px;
+    }
+
+    &__description {
+      margin: 18px 0;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    &__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+
+      span {
+        overflow: hidden;
+        color: #777;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      button {
+        flex-shrink: 0;
+        padding: 8px 12px;
+        border: 0;
+        border-radius: 7px;
+        background: #2563eb;
+        color: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+
+  &__message,
+  &__error,
+  &__empty {
+    padding: 28px;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    background: #fff;
+    text-align: center;
+  }
+
+  &__error {
+    background: #fee2e2;
+  }
+
+  &__empty {
+    h2 {
+      margin: 0 0 8px;
+    }
+
+    p {
+      margin: 0;
+      color: #666;
+    }
+  }
+
+  @media (max-width: 900px) {
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 20px;
+
+    h1 {
+      font-size: 28px;
+    }
+
+    &__search {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
+
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .business-card {
+      &__footer {
+        align-items: flex-start;
+        flex-direction: column;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+.service-card {
+  &--joined {
+    border-color: #bfdbfe;
+    background: #f8fbff;
+  }
+
+  &__join-button {
+    &--joined {
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+
+      &:hover {
+        background: #dbeafe;
+      }
+    }
+  }
+}
+
+.queue-status {
+  &--joined {
+    color: #2563eb;
+
+    .queue-status__dot {
+      background: #2563eb;
+    }
+
+    strong {
+      color: #1d4ed8;
+    }
+  }
+}

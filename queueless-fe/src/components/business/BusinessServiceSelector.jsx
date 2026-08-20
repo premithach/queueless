@@ -4,10 +4,13 @@ import { getBusinessServices, getServiceQueue } from '../../api/businessApi';
 
 import { getAuth } from '../../utils/auth';
 
+import './BusinessServiceSelector.scss';
+
 const BusinessServiceSelector = ({ onQueueChange }) => {
   const [services, setServices] = useState([]);
   const [selectedServiceId, setSelectedServiceId] = useState('');
   const [loading, setLoading] = useState(true);
+  const [queueLoading, setQueueLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -59,6 +62,9 @@ const BusinessServiceSelector = ({ onQueueChange }) => {
     let isMounted = true;
 
     const loadServiceQueue = async () => {
+      setQueueLoading(true);
+      setError('');
+
       try {
         const queue = await getServiceQueue(selectedServiceId);
 
@@ -68,6 +74,10 @@ const BusinessServiceSelector = ({ onQueueChange }) => {
       } catch (error) {
         if (isMounted) {
           setError(error.message);
+        }
+      } finally {
+        if (isMounted) {
+          setQueueLoading(false);
         }
       }
     };
@@ -79,30 +89,96 @@ const BusinessServiceSelector = ({ onQueueChange }) => {
     };
   }, [selectedServiceId, onQueueChange]);
 
+  const handleServiceSelect = (serviceId) => {
+    setSelectedServiceId(String(serviceId));
+  };
+
   if (loading) {
-    return <p>Loading services...</p>;
+    return (
+      <div className="business-service-selector">
+        <div className="business-service-selector__loading">
+          Loading services...
+        </div>
+      </div>
+    );
   }
 
-  if (error) {
-    return <p>{error}</p>;
+  if (error && services.length === 0) {
+    return (
+      <div className="business-service-selector">
+        <div className="business-service-selector__error">{error}</div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <label htmlFor="service">Select Service</label>
+    <section className="business-service-selector">
+      <div className="business-service-selector__header">
+        <div>
+          <p className="business-service-selector__eyebrow">QUEUE MANAGEMENT</p>
 
-      <select
-        id="service"
-        value={selectedServiceId}
-        onChange={(event) => setSelectedServiceId(event.target.value)}
-      >
-        {services.map((service) => (
-          <option key={service.id} value={service.id}>
-            {service.name}
-          </option>
-        ))}
-      </select>
-    </div>
+          <h2>Select Service</h2>
+
+          <p>Choose the service queue you want to manage.</p>
+        </div>
+
+        <span className="business-service-selector__count">
+          {services.length} {services.length === 1 ? 'service' : 'services'}
+        </span>
+      </div>
+
+      {error && <div className="business-service-selector__error">{error}</div>}
+
+      {services.length === 0 ? (
+        <div className="business-service-selector__empty">
+          No services available.
+        </div>
+      ) : (
+        <div className="business-service-selector__list">
+          {services.map((service) => {
+            const isSelected = String(service.id) === selectedServiceId;
+
+            return (
+              <button
+                key={service.id}
+                type="button"
+                className={`service-selector-card ${
+                  isSelected ? 'service-selector-card--selected' : ''
+                }`}
+                onClick={() => handleServiceSelect(service.id)}
+              >
+                <div className="service-selector-card__icon">
+                  {service.name?.charAt(0)}
+                </div>
+
+                <div className="service-selector-card__content">
+                  <h3>{service.name}</h3>
+
+                  {service.description && <p>{service.description}</p>}
+
+                  {service.average_service_time && (
+                    <span>
+                      Average service time: {service.average_service_time}{' '}
+                      minutes
+                    </span>
+                  )}
+                </div>
+
+                <div className="service-selector-card__arrow">
+                  {isSelected ? '✓' : '›'}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {queueLoading && (
+        <div className="business-service-selector__queue-loading">
+          Loading queue...
+        </div>
+      )}
+    </section>
   );
 };
 

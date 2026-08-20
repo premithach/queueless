@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../../api/authApi';
 import { saveAuth } from '../../utils/auth';
 
+import './Login.scss';
+
 const Login = () => {
   const navigate = useNavigate();
 
@@ -36,43 +38,76 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h1>QueueLess Login</h1>
+    <main className="login-page">
+      <section className="login-card">
+        <div className="login-card__header">
+          <div className="login-card__logo">Q</div>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
+          <p className="login-card__eyebrow">QUEUELESS</p>
 
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Enter your email"
-            required
-          />
+          <h1>Welcome back</h1>
+
+          <p>Sign in to manage or join your queues.</p>
         </div>
 
-        <div>
-          <label htmlFor="password">Password</label>
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="login-form__field">
+            <label htmlFor="email">Email</label>
 
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Enter your password"
-            required
-          />
-        </div>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="Enter your email"
+              autoComplete="email"
+              required
+            />
+          </div>
 
-        {error && <p>{error}</p>}
+          <div className="login-form__field">
+            <div className="login-form__label-row">
+              <label htmlFor="password">Password</label>
+            </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-    </div>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          {error && <div className="login-form__error">{error}</div>}
+
+          <button
+            type="submit"
+            className="login-form__submit"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="login-form__spinner" />
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
+          </button>
+
+          <div className="login__register">
+            <span>Don't have an account?</span>
+
+            <button type="button" onClick={() => navigate('/register')}>
+              Create an account
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
   );
 };
 

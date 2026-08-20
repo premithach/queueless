@@ -115,9 +115,25 @@ function getAll(req, res) {
   });
 }
 
+function getCategories(req, res) {
+  businessService.getBusinessCategories(
+    (error, categories) => {
+      if (error) {
+        sendJson(res, 500, {
+          message: 'Failed to fetch business categories',
+        });
+        return;
+      }
+
+      sendJson(res, 200, categories);
+    }
+  );
+}
+
 module.exports = {
   getNearby,
   search,
   getById,
   getAll,
+  getCategories,
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   callNextCustomer,
@@ -10,6 +10,9 @@ import {
 } from '../../api/businessApi';
 
 import BusinessServiceSelector from '../../components/business/BusinessServiceSelector';
+import BusinessServiceManager from '../../components/business/BusinessServiceManager';
+
+import './BusinessQueue.scss';
 
 const BusinessQueue = () => {
   const [tokens, setTokens] = useState([]);
@@ -106,7 +109,10 @@ const BusinessQueue = () => {
     setError('');
 
     try {
-      const updatedQueue = await updateQueueStatus(queue.id, status);
+      const updatedQueue = await updateQueueStatus(
+        queue.id,
+        status
+      );
 
       setQueueStatus(updatedQueue.status);
     } catch (error) {
@@ -121,9 +127,13 @@ const BusinessQueue = () => {
     setQueueStatus(selectedQueue.status);
   }, []);
 
-  const currentCustomer = tokens.find((token) => token.status === 'SERVING');
+  const currentCustomer = tokens.find(
+    (token) => token.status === 'SERVING'
+  );
 
-  const waitingCustomers = tokens.filter((token) => token.status === 'WAITING');
+  const waitingCustomers = tokens.filter(
+    (token) => token.status === 'WAITING'
+  );
 
   const previousCustomers = tokens.filter(
     (token) =>
@@ -133,137 +143,254 @@ const BusinessQueue = () => {
   );
 
   return (
-    <div>
-      <h1>Queue Management</h1>
+    <div className="business-queue">
+      <div className="queue-header">
+        <h1>Queue Management</h1>
 
-      <BusinessServiceSelector onQueueChange={handleQueueChange} />
+        {queue && (
+          <div className="queue-status">
+            <span
+              className={`status-dot status-${queueStatus.toLowerCase()}`}
+            />
+            {queueStatus}
+          </div>
+        )}
+      </div>
+
+      {/* Service management */}
+      <BusinessServiceManager />
+
+      {/* Queue service selection */}
+      <div className="service-selector-container">
+        <BusinessServiceSelector
+          onQueueChange={handleQueueChange}
+        />
+      </div>
 
       {loading && <p>Loading queue...</p>}
 
-      {error && <p>{error}</p>}
+      {error && (
+        <p className="error-message">
+          {error}
+        </p>
+      )}
 
       {queue && (
         <>
-          <p>Queue Status: {queueStatus}</p>
+          <div className="queue-actions">
+            {queueStatus === 'OPEN' && (
+              <button
+                type="button"
+                className="pause-button"
+                onClick={() =>
+                  handleQueueStatusChange('PAUSED')
+                }
+                disabled={statusLoading}
+              >
+                {statusLoading
+                  ? 'Pausing...'
+                  : 'Pause Queue'}
+              </button>
+            )}
 
-          {queueStatus === 'OPEN' && (
+            {queueStatus === 'PAUSED' && (
+              <button
+                type="button"
+                className="resume-button"
+                onClick={() =>
+                  handleQueueStatusChange('OPEN')
+                }
+                disabled={statusLoading}
+              >
+                {statusLoading
+                  ? 'Resuming...'
+                  : 'Resume Queue'}
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={() => handleQueueStatusChange('PAUSED')}
-              disabled={statusLoading}
+              className="call-next-button"
+              onClick={handleCallNext}
+              disabled={
+                callingNext ||
+                Boolean(currentCustomer)
+              }
             >
-              {statusLoading ? 'Pausing...' : 'Pause Queue'}
+              {callingNext
+                ? 'Calling...'
+                : 'Call Next Customer'}
             </button>
-          )}
-
-          {queueStatus === 'PAUSED' && (
-            <button
-              type="button"
-              onClick={() => handleQueueStatusChange('OPEN')}
-              disabled={statusLoading}
-            >
-              {statusLoading ? 'Resuming...' : 'Resume Queue'}
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={handleCallNext}
-            disabled={callingNext || Boolean(currentCustomer)}
-          >
-            {callingNext ? 'Calling...' : 'Call Next Customer'}
-          </button>
+          </div>
 
           {currentCustomer && (
-            <section>
+            <section className="queue-section">
               <h2>Current Customer</h2>
 
-              <div>
-                <h3>Token #{currentCustomer.token_number}</h3>
+              <div className="current-customer">
+                <div className="customer-info">
+                  <div className="token-number">
+                    #{currentCustomer.token_number}
+                  </div>
 
-                <p>Customer: {currentCustomer.customer_name}</p>
+                  <div>
+                    <h3>
+                      {currentCustomer.customer_name}
+                    </h3>
 
-                <p>Status: {currentCustomer.status}</p>
+                    <p>
+                      Status:{' '}
+                      {currentCustomer.status}
+                    </p>
 
-                <p>
-                  Joined: {new Date(currentCustomer.joined_at).toLocaleString()}
-                </p>
+                    <p>
+                      Joined:{' '}
+                      {new Date(
+                        currentCustomer.joined_at
+                      ).toLocaleString()}
+                    </p>
 
-                {currentCustomer.called_at && (
-                  <p>
-                    Called:{' '}
-                    {new Date(currentCustomer.called_at).toLocaleString()}
-                  </p>
-                )}
+                    {currentCustomer.called_at && (
+                      <p>
+                        Called:{' '}
+                        {new Date(
+                          currentCustomer.called_at
+                        ).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleCustomerAction('complete')}
-                  disabled={actionLoading}
-                >
-                  Complete
-                </button>
+                <div className="customer-actions">
+                  <button
+                    type="button"
+                    className="complete-button"
+                    onClick={() =>
+                      handleCustomerAction(
+                        'complete'
+                      )
+                    }
+                    disabled={actionLoading}
+                  >
+                    Complete
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleCustomerAction('skip')}
-                  disabled={actionLoading}
-                >
-                  Skip
-                </button>
+                  <button
+                    type="button"
+                    className="skip-button"
+                    onClick={() =>
+                      handleCustomerAction('skip')
+                    }
+                    disabled={actionLoading}
+                  >
+                    Skip
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleCustomerAction('cancel')}
-                  disabled={actionLoading}
-                >
-                  Cancel
-                </button>
+                  <button
+                    type="button"
+                    className="cancel-button"
+                    onClick={() =>
+                      handleCustomerAction('cancel')
+                    }
+                    disabled={actionLoading}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </section>
           )}
 
-          <section>
+          <section className="queue-section">
             <h2>Waiting Customers</h2>
 
             {waitingCustomers.length === 0 ? (
-              <p>No waiting customers.</p>
+              <div className="empty-state">
+                No waiting customers.
+              </div>
             ) : (
-              waitingCustomers.map((token) => (
-                <div key={token.id}>
-                  <h3>Token #{token.token_number}</h3>
+              <div className="customer-list">
+                {waitingCustomers.map((token) => (
+                  <div
+                    key={token.id}
+                    className="customer-item"
+                  >
+                    <div className="customer-details">
+                      <span className="token">
+                        #{token.token_number}
+                      </span>
 
-                  <p>Customer: {token.customer_name}</p>
+                      <div>
+                        <strong>
+                          {token.customer_name}
+                        </strong>
 
-                  <p>Status: {token.status}</p>
+                        <p>
+                          Joined:{' '}
+                          {new Date(
+                            token.joined_at
+                          ).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
 
-                  <p>Joined: {new Date(token.joined_at).toLocaleString()}</p>
-                </div>
-              ))
+                    <span className="customer-status">
+                      {token.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </section>
 
-          <section>
+          <section className="queue-section">
             <h2>Previous Customers</h2>
 
             {previousCustomers.length === 0 ? (
-              <p>No previous customers.</p>
+              <div className="empty-state">
+                No previous customers.
+              </div>
             ) : (
-              previousCustomers.map((token) => (
-                <div key={token.id}>
-                  <h3>Token #{token.token_number}</h3>
+              <div className="customer-list">
+                {previousCustomers.map((token) => (
+                  <div
+                    key={token.id}
+                    className="customer-item"
+                  >
+                    <div className="customer-details">
+                      <span className="token">
+                        #{token.token_number}
+                      </span>
 
-                  <p>Customer: {token.customer_name}</p>
+                      <div>
+                        <strong>
+                          {token.customer_name}
+                        </strong>
 
-                  <p>Status: {token.status}</p>
+                        <p>
+                          Joined:{' '}
+                          {new Date(
+                            token.joined_at
+                          ).toLocaleString()}
+                        </p>
 
-                  <p>Joined: {new Date(token.joined_at).toLocaleString()}</p>
+                        {token.called_at && (
+                          <p>
+                            Called:{' '}
+                            {new Date(
+                              token.called_at
+                            ).toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
-                  {token.called_at && (
-                    <p>Called: {new Date(token.called_at).toLocaleString()}</p>
-                  )}
-                </div>
-              ))
+                    <span className="customer-status">
+                      {token.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </section>
         </>

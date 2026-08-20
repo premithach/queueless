@@ -1,0 +1,270 @@
+.business-queue {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+
+  .queue-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    .queue-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #999;
+      }
+
+      .status-open {
+        background: #22c55e;
+      }
+
+      .status-paused {
+        background: #f59e0b;
+      }
+    }
+  }
+
+  .service-selector-container {
+    margin-bottom: 24px;
+    padding: 20px;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    background: #fff;
+
+    select {
+      min-width: 280px;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+  }
+
+  .queue-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    button {
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+    }
+
+    .pause-button {
+      background: #f59e0b;
+    }
+
+    .resume-button {
+      background: #22c55e;
+    }
+
+    .call-next-button {
+      background: #2563eb;
+    }
+  }
+
+  .queue-section {
+    margin-bottom: 24px;
+    padding: 24px;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    background: #fff;
+
+    h2 {
+      margin: 0 0 20px;
+      font-size: 20px;
+    }
+  }
+
+  .current-customer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #f7f7f7;
+
+    .customer-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .token-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        background: #eaeaea;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      h3 {
+        margin: 0 0 4px;
+      }
+
+      p {
+        margin: 0;
+        color: #666;
+      }
+    }
+
+    .customer-actions {
+      display: flex;
+      gap: 8px;
+
+      button {
+        padding: 9px 14px;
+        border: 0;
+        border-radius: 7px;
+        cursor: pointer;
+        font-weight: 600;
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+      }
+
+      .complete-button {
+        background: #22c55e;
+      }
+
+      .skip-button {
+        background: #f59e0b;
+      }
+
+      .cancel-button {
+        background: #ef4444;
+      }
+    }
+  }
+
+  .customer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .customer-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+
+      .customer-details {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        .token {
+          font-weight: 700;
+        }
+
+        p {
+          margin: 0;
+          color: #666;
+        }
+      }
+
+      .customer-status {
+        font-size: 13px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .empty-state {
+    padding: 24px;
+    text-align: center;
+    color: #666;
+    border: 1px dashed #ddd;
+    border-radius: 8px;
+  }
+
+  .error-message {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #fee2e2;
+  }
+
+  @media (max-width: 800px) {
+    padding: 20px;
+
+    .queue-header {
+      flex-direction: column;
+    }
+
+    .current-customer {
+      flex-direction: column;
+      align-items: stretch;
+
+      .customer-actions {
+        width: 100%;
+
+        button {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .service-selector-container {
+      select {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
+    .queue-actions {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
+
+    .customer-list {
+      .customer-item {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  }
+}

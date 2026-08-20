@@ -81,3 +81,21 @@ export const getQueueHistory = async () => {
 
   return data;
 };
+
+export const getActiveQueueTokens = async () => {
+  const authData = JSON.parse(localStorage.getItem('queueless_auth'));
+
+  const response = await fetch(`${API_BASE_URL}/users/me/active-queues`, {
+    headers: {
+      Authorization: `Bearer ${authData?.token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to fetch active queues');
+  }
+
+  return data;
+};

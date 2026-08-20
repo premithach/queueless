@@ -2,6 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { logout } from '../../utils/auth';
 
+import './CustomerNavbar.scss';
+
 const CustomerNavbar = () => {
   const navigate = useNavigate();
 
@@ -11,10 +13,12 @@ const CustomerNavbar = () => {
   };
 
   return (
-    <nav>
-      <Link to="/businesses">QueueLess</Link>
+    <nav className="customer-navbar">
+      <Link to="/businesses" className="customer-navbar__brand">
+        QueueLess
+      </Link>
 
-      <div>
+      <div className="customer-navbar__links">
         <Link to="/businesses">Businesses</Link>
 
         <Link to="/queue-history">Queue History</Link>

@@ -14,6 +14,14 @@ function handle(req, res) {
     return true;
   }
 
+  if (
+    method === 'GET' &&
+    url === '/users/me/active-queues'
+  ) {
+    queueTokenController.getActiveQueueTokens(req, res);
+    return true;
+  }
+
   return false;
 }
 

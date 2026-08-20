@@ -1,18 +1,28 @@
 const serviceService = require('../services/serviceService');
-const { authenticate, requireRole } = require('../middleware/authMiddleware');
-const { sendJson, parseJsonBody } = require('../utils/http');
+const {
+  authenticate,
+  requireRole,
+} = require('../middleware/authMiddleware');
+
+const {
+  sendJson,
+  parseJsonBody,
+} = require('../utils/http');
 
 function getByBusinessId(req, res, businessId) {
-  serviceService.getServicesByBusinessId(businessId, (error, services) => {
-    if (error) {
-      sendJson(res, 500, {
-        message: 'Failed to fetch services',
-      });
-      return;
-    }
+  serviceService.getServicesByBusinessId(
+    businessId,
+    (error, services) => {
+      if (error) {
+        sendJson(res, 500, {
+          message: 'Failed to fetch services',
+        });
+        return;
+      }
 
-    sendJson(res, 200, services);
-  });
+      sendJson(res, 200, services);
+    }
+  );
 }
 
 function create(req, res, businessId) {
@@ -21,7 +31,8 @@ function create(req, res, businessId) {
       return;
     }
 
-    if (Number(businessId) !== user.business_id) {
+    // Business can only create services for its own business
+    if (Number(businessId) !== Number(user.business_id)) {
       sendJson(res, 403, {
         message: 'You cannot manage another business',
       });
@@ -36,24 +47,53 @@ function create(req, res, businessId) {
         return;
       }
 
-      const { name, description, average_service_time } = data;
+      const {
+        name,
+        description,
+        average_service_time,
+      } = data;
 
-      if (!name || !average_service_time) {
+      const serviceName = String(name || '').trim();
+
+      if (!serviceName) {
         sendJson(res, 400, {
-          message: 'name and average_service_time are required',
+          message: 'Service name is required',
+        });
+        return;
+      }
+
+      const averageServiceTime = Number(
+        average_service_time
+      );
+
+      if (
+        !Number.isFinite(averageServiceTime) ||
+        averageServiceTime <= 0
+      ) {
+        sendJson(res, 400, {
+          message:
+            'Average service time must be greater than 0',
         });
         return;
       }
 
       serviceService.createService(
         businessId,
-        name,
+        serviceName,
         description,
-        average_service_time,
+        averageServiceTime,
         (error, service) => {
           if (error) {
             sendJson(res, 500, {
               message: 'Failed to create service',
+            });
+            return;
+          }
+
+          if (service.error === 'SERVICE_EXISTS') {
+            sendJson(res, 409, {
+              message:
+                'A service with this name already exists',
             });
             return;
           }
@@ -79,11 +119,32 @@ function update(req, res, serviceId) {
         return;
       }
 
-      const { name, description, average_service_time } = data;
+      const {
+        name,
+        description,
+        average_service_time,
+      } = data;
 
-      if (!name || !average_service_time) {
+      const serviceName = String(name || '').trim();
+
+      if (!serviceName) {
         sendJson(res, 400, {
-          message: 'name and average_service_time are required',
+          message: 'Service name is required',
+        });
+        return;
+      }
+
+      const averageServiceTime = Number(
+        average_service_time
+      );
+
+      if (
+        !Number.isFinite(averageServiceTime) ||
+        averageServiceTime <= 0
+      ) {
+        sendJson(res, 400, {
+          message:
+            'Average service time must be greater than 0',
         });
         return;
       }
@@ -91,9 +152,9 @@ function update(req, res, serviceId) {
       serviceService.updateService(
         serviceId,
         user.business_id,
-        name,
+        serviceName,
         description,
-        average_service_time,
+        averageServiceTime,
         (error, service) => {
           if (error) {
             sendJson(res, 500, {
@@ -142,7 +203,8 @@ function remove(req, res, serviceId) {
 
         if (result.error === 'SERVICE_HAS_QUEUE') {
           sendJson(res, 409, {
-            message: 'Cannot delete service because it has a queue',
+            message:
+              'Cannot delete service because it has a queue',
           });
           return;
         }

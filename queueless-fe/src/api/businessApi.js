@@ -241,3 +241,93 @@ export const getServiceQueue = async (serviceId) => {
 
   return data;
 };
+
+export async function getBusinessCategories() {
+  const response = await fetch(
+    `${API_BASE_URL}/businesses/categories`
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || 'Failed to fetch business categories'
+    );
+  }
+
+  return data;
+}
+
+export const createBusinessService = async (
+  businessId,
+  serviceData
+) => {
+  const response = await fetch(
+    `${API_BASE_URL}/businesses/${businessId}/services`,
+    {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(serviceData),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || 'Failed to create service'
+    );
+  }
+
+  return data;
+};
+
+export const updateBusinessService = async (
+  serviceId,
+  serviceData
+) => {
+  const response = await fetch(
+    `${API_BASE_URL}/services/${serviceId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(serviceData),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || 'Failed to update service'
+    );
+  }
+
+  return data;
+};
+
+export const deleteBusinessService = async (serviceId) => {
+  const response = await fetch(
+    `${API_BASE_URL}/services/${serviceId}`,
+    {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || 'Failed to delete service'
+    );
+  }
+
+  return data;
+};

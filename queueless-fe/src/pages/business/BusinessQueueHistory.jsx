@@ -4,6 +4,8 @@ import { getQueueHistory } from '../../api/businessApi';
 
 import BusinessServiceSelector from '../../components/business/BusinessServiceSelector';
 
+import './BusinessQueueHistory.scss';
+
 const BusinessQueueHistory = () => {
   const [queue, setQueue] = useState(null);
   const [history, setHistory] = useState([]);
@@ -51,41 +53,85 @@ const BusinessQueueHistory = () => {
   }, [queue]);
 
   return (
-    <div>
-      <h1>Queue History</h1>
+    <div className="business-history">
+      <div className="history-header">
+        <div>
+          <p className="history-eyebrow">BUSINESS</p>
+          <h1>Queue History</h1>
+          <p className="history-description">
+            View completed and previous customer activity.
+          </p>
+        </div>
 
-      <BusinessServiceSelector onQueueChange={handleQueueChange} />
+        {queue && <div className="history-queue-status">Queue #{queue.id}</div>}
+      </div>
 
-      {loading && <p>Loading queue history...</p>}
+      <div className="service-selector-container">
+        <BusinessServiceSelector onQueueChange={handleQueueChange} />
+      </div>
 
-      {error && <p>{error}</p>}
+      {loading && (
+        <div className="history-message">Loading queue history...</div>
+      )}
+
+      {error && <div className="history-error">{error}</div>}
 
       {queue && !loading && (
-        <section>
+        <section className="history-card">
           {history.length === 0 ? (
-            <p>No queue history available.</p>
+            <div className="empty-history">
+              <h2>No queue history</h2>
+              <p>There are no previous customers for this service.</p>
+            </div>
           ) : (
-            history.map((token) => (
-              <div key={token.id}>
-                <h2>Token #{token.token_number}</h2>
+            <div className="history-table-wrapper">
+              <table className="history-table">
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Called</th>
+                    <th>Completed</th>
+                  </tr>
+                </thead>
 
-                <p>Customer: {token.customer_name}</p>
+                <tbody>
+                  {history.map((token) => (
+                    <tr key={token.id}>
+                      <td>
+                        <strong>#{token.token_number}</strong>
+                      </td>
 
-                <p>Status: {token.status}</p>
+                      <td>{token.customer_name}</td>
 
-                <p>Joined: {new Date(token.joined_at).toLocaleString()}</p>
+                      <td>
+                        <span
+                          className={`history-status status-${token.status.toLowerCase()}`}
+                        >
+                          {token.status}
+                        </span>
+                      </td>
 
-                {token.called_at && (
-                  <p>Called: {new Date(token.called_at).toLocaleString()}</p>
-                )}
+                      <td>{new Date(token.joined_at).toLocaleString()}</td>
 
-                {token.completed_at && (
-                  <p>
-                    Completed: {new Date(token.completed_at).toLocaleString()}
-                  </p>
-                )}
-              </div>
-            ))
+                      <td>
+                        {token.called_at
+                          ? new Date(token.called_at).toLocaleString()
+                          : '-'}
+                      </td>
+
+                      <td>
+                        {token.completed_at
+                          ? new Date(token.completed_at).toLocaleString()
+                          : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </section>
       )}

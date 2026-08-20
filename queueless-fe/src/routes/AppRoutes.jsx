@@ -9,6 +9,7 @@ import BusinessQueueHistory from '../pages/business/BusinessQueueHistory';
 import BusinessStatistics from '../pages/business/BusinessStatistics';
 
 import Login from '../pages/auth/Login';
+import Register from '../pages/auth/Register';
 import BusinessDetails from '../pages/customer/BusinessDetails';
 import BusinessList from '../pages/customer/BusinessList';
 import QueueHistory from '../pages/customer/QueueHistory';
@@ -21,6 +22,8 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        <Route path="/register" element={<Register />} />
 
         {/* Customer Routes */}
         <Route

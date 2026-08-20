@@ -1,0 +1,63 @@
+.business-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 32px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+
+  &__brand {
+    color: #111827;
+    font-size: 20px;
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover {
+      color: #2563eb;
+    }
+  }
+
+  &__links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+
+    a {
+      color: #4b5563;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+
+      &:hover {
+        color: #2563eb;
+      }
+    }
+
+    button {
+      padding: 8px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 7px;
+      background: #fff;
+      color: #374151;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+
+      &:hover {
+        border-color: #d1d5db;
+        background: #f9fafb;
+      }
+    }
+  }
+  @media (max-width: 700px) {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 20px;
+
+    &__links {
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+  }
+}

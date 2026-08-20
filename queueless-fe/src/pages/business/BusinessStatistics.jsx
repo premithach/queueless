@@ -4,6 +4,8 @@ import { getQueueStatistics } from '../../api/businessApi';
 
 import BusinessServiceSelector from '../../components/business/BusinessServiceSelector';
 
+import './BusinessStatistics.scss';
+
 const BusinessStatistics = () => {
   const [queue, setQueue] = useState(null);
   const [statistics, setStatistics] = useState(null);
@@ -51,47 +53,95 @@ const BusinessStatistics = () => {
   }, [queue]);
 
   return (
-    <div>
-      <h1>Queue Statistics</h1>
+    <div className="business-statistics">
+      <div className="statistics-header">
+        <div>
+          <p className="statistics-eyebrow">BUSINESS</p>
 
-      <BusinessServiceSelector onQueueChange={handleQueueChange} />
+          <h1>Queue Statistics</h1>
 
-      {loading && <p>Loading statistics...</p>}
+          <p className="statistics-description">
+            Track queue performance and customer activity.
+          </p>
+        </div>
 
-      {error && <p>{error}</p>}
+        {queue && (
+          <div className="statistics-queue-status">Queue #{queue.id}</div>
+        )}
+      </div>
 
-      {statistics && !loading && (
-        <section>
-          <div>
-            <h2>Total Customers</h2>
-            <p>{statistics.total_customers}</p>
+      <div className="service-selector-container">
+        <BusinessServiceSelector onQueueChange={handleQueueChange} />
+      </div>
+
+      {loading && (
+        <div className="statistics-message">Loading statistics...</div>
+      )}
+
+      {error && <div className="statistics-error">{error}</div>}
+
+      {queue && !loading && statistics && (
+        <>
+          <div className="statistics-grid">
+            <div className="statistics-card">
+              <span className="statistics-label">Total Customers</span>
+
+              <strong className="statistics-value">
+                {statistics.total_customers}
+              </strong>
+            </div>
+
+            <div className="statistics-card">
+              <span className="statistics-label">Completed</span>
+
+              <strong className="statistics-value">
+                {statistics.completed}
+              </strong>
+            </div>
+
+            <div className="statistics-card">
+              <span className="statistics-label">Skipped</span>
+
+              <strong className="statistics-value">{statistics.skipped}</strong>
+            </div>
+
+            <div className="statistics-card">
+              <span className="statistics-label">Cancelled</span>
+
+              <strong className="statistics-value">
+                {statistics.cancelled}
+              </strong>
+            </div>
           </div>
 
-          <div>
-            <h2>Completed</h2>
-            <p>{statistics.completed}</p>
-          </div>
+          <section className="performance-card">
+            <div className="card-header">
+              <p className="statistics-eyebrow">PERFORMANCE</p>
 
-          <div>
-            <h2>Skipped</h2>
-            <p>{statistics.skipped}</p>
-          </div>
+              <h2>Queue Performance</h2>
+            </div>
 
-          <div>
-            <h2>Cancelled</h2>
-            <p>{statistics.cancelled}</p>
-          </div>
+            <div className="performance-list">
+              <div className="performance-row">
+                <div>
+                  <span>Average Wait Time</span>
+                  <p>Average time customers wait before being served.</p>
+                </div>
 
-          <div>
-            <h2>Average Wait Time</h2>
-            <p>{statistics.average_wait_time} minutes</p>
-          </div>
+                <strong>{statistics.average_wait_time} min</strong>
+              </div>
 
-          <div>
-            <h2>Average Service Time</h2>
-            <p>{statistics.average_service_time} minutes</p>
-          </div>
-        </section>
+              <div className="performance-row">
+                <div>
+                  <span>Average Service Time</span>
+                  <p>Average time spent serving a customer.</p>
+                </div>
+
+                <strong>{statistics.average_service_time} min</strong>
+              </div>
+            </div>
+          </section>
+        </>
       )}
     </div>
   );
